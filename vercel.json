@@ -17,10 +17,10 @@
     }
   ],
   "env": {
-    "BOT_TOKEN": "@bot_token",
-    "HF_SPACES_URL": "@hf_spaces_url",
-    "MAIN_CHANNEL": "@main_channel",
-    "LOG_CHANNEL": "@log_channel",
-    "OWNER": "@owner"
+    "BOT_TOKEN": "",
+    "HF_SPACES_URL": "",
+    "MAIN_CHANNEL": "",
+    "LOG_CHANNEL": "",
+    "OWNER": ""
   }
 }
