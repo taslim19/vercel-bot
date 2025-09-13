@@ -8,19 +8,8 @@
   ],
   "routes": [
     {
-      "src": "/webhook",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/health",
+      "src": "/(.*)",
       "dest": "/api/index.py"
     }
-  ],
-  "env": {
-    "BOT_TOKEN": "",
-    "HF_SPACES_URL": "",
-    "MAIN_CHANNEL": "",
-    "LOG_CHANNEL": "",
-    "OWNER": ""
-  }
+  ]
 }

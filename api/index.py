@@ -25,6 +25,28 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({'error': str(e)}).encode())
     
+    def do_GET(self):
+        """Handle GET requests"""
+        path = self.path
+        
+        if path == '/health' or path == '/':
+            # Health check endpoint
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                'status': 'healthy', 
+                'service': 'vercel-bot',
+                'version': '1.0.0',
+                'path': path
+            }).encode())
+        else:
+            # 404 for other paths
+            self.send_response(404)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': 'Not found', 'path': path}).encode())
+    
     def process_update(self, update_data):
         """Process Telegram update"""
         try:
@@ -57,10 +79,14 @@ class handler(BaseHTTPRequestHandler):
                     if response.status_code == 200:
                         reply = response.json().get('reply', 'Message processed')
                         self.send_telegram_message(chat_id, reply)
+                    else:
+                        self.send_telegram_message(chat_id, f"❌ HF Spaces error: {response.status_code}")
                         
                 except Exception as e:
                     print(f"Error forwarding to HF Spaces: {e}")
                     self.send_telegram_message(chat_id, "❌ Service temporarily unavailable")
+            else:
+                self.send_telegram_message(chat_id, "🤖 Bot is running! HF Spaces not configured.")
                     
         except Exception as e:
             print(f"Error processing update: {e}")
@@ -70,6 +96,7 @@ class handler(BaseHTTPRequestHandler):
         try:
             bot_token = os.getenv('BOT_TOKEN')
             if not bot_token:
+                print("BOT_TOKEN not set")
                 return
                 
             url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
@@ -79,18 +106,8 @@ class handler(BaseHTTPRequestHandler):
                 'parse_mode': 'Markdown'
             }
             
-            requests.post(url, json=data, timeout=5)
+            response = requests.post(url, json=data, timeout=5)
+            print(f"Telegram response: {response.status_code}")
             
         except Exception as e:
             print(f"Error sending message: {e}")
-    
-    def do_GET(self):
-        """Health check endpoint"""
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps({
-            'status': 'healthy', 
-            'service': 'vercel-bot',
-            'version': '1.0.0'
-        }).encode())
